@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./Ratings.css";
 import Navbar from "../components/Navbar";
+import { useLocationStore } from "../Counterstore";
 
 export default function RateRoute() {
   const [routeSource, setRouteSource] = useState(null);
@@ -12,6 +13,15 @@ export default function RateRoute() {
   const [police, setPolice] = useState("");
   const [incidentTags, setIncidentTags] = useState([]);
   const [comment, setComment] = useState("");
+ 
+const { location, status, fetchLocation,placeName } = useLocationStore();
+useEffect(() => {
+  if (status === "granted" && location) {
+    setRouteSource("current");
+    setRouteSelected(true);
+  }
+}, [status, location]);
+
 
   const incidentOptions = [
     "Eve-teasing",
@@ -20,6 +30,11 @@ export default function RateRoute() {
     "Drunk people",
     "No issues",
   ];
+
+  const handleCurrentRoute = () => {
+  fetchLocation();
+};
+
 
   const selectRoute = (type) => {
     setRouteSource(type);
@@ -38,6 +53,8 @@ export default function RateRoute() {
     <>
       <Navbar />
 
+      
+
       {/* HEADER */}
       <section className="rate-header">
         
@@ -51,15 +68,21 @@ export default function RateRoute() {
           <h3>Select route to rate</h3>
 
           <button
-            type="button"
-            className={`select-route-btn ${
-              routeSource === "current" ? "active" : ""
-            }`}
-            onClick={() => selectRoute("current")}
-          >
-            📍 Rate from current location
-            <span>Use your live location</span>
-          </button>
+  type="button" disabled={status === "loading"}
+  className={`select-route-btn ${
+    routeSource === "current" ? "active" : ""
+  }`}
+  onClick={handleCurrentRoute}
+>
+  📍 Rate from current location
+  <span><span>
+    {status === "idle" && "Use your live location"}
+    {status === "loading" && "Detecting location…"}
+    {status === "granted" && placeName && `Near ${placeName}`}
+    {status === "denied" && "Location permission required"}
+  </span></span>
+</button>
+
 
           <button
             type="button"
@@ -88,8 +111,27 @@ export default function RateRoute() {
           </p>
         </div>
 
+
+
+
         {/* RIGHT COLUMN */}
         <div className="route-card">
+
+          {/* LOCATION STATUS */}
+{status === "loading" && (
+  <p className="location-info">📡 Getting your location…</p>
+)}
+
+{status === "granted" && routeSource === "current" && (
+  <p className="location-info">📍 Using current location</p>
+)}
+
+{status === "denied" && (
+  <p className="location-error">
+    ⚠️ Location permission required to rate this route
+  </p>
+)}
+
           {!routeSelected ? (
             <p className="placeholder-text">
               Select a route to start rating its safety.
