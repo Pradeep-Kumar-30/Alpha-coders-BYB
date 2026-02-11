@@ -1,20 +1,24 @@
-/* PAGE */
+/* ================= PAGE ================= */
+
 .rate-page {
   width: 100%;
-  background: #f8fafc;
-  padding-bottom: 48px;
+  background:
+    radial-gradient(circle at top, rgba(43,180,166,0.08), transparent 50%),
+    #f8fafc;
+  padding-bottom: 60px;
 }
 
-/* HEADER */
+/* ================= HEADER ================= */
+
 .rate-header {
   max-width: 1200px;
-  margin: 20px auto 12px;
+  margin: 30px auto 20px;
   padding: 0 24px;
   text-align: center;
 }
 
 .rate-header h1 {
-  font-size: clamp(30px, 4vw, 50px);
+  font-size: clamp(32px, 4vw, 48px);
   font-weight: 600;
 }
 
@@ -23,55 +27,58 @@
 }
 
 .rate-header p {
-  margin-top: 6px;
-  font-size: 14.5px;
+  margin-top: 8px;
+  font-size: 15px;
   color: #475569;
 }
 
-/* LAYOUT */
+/* ================= LAYOUT ================= */
+
 .rate-layout {
   max-width: 1200px;
-  margin: 26px auto;
-  padding: 8px 24px;
+  margin: 40px auto;
+  padding: 0 24px;
 
   display: grid;
-  grid-template-columns: 360px 1fr;
-  gap: 26px;
+  grid-template-columns: 380px 1fr;
+  gap: 48px;
   align-items: flex-start;
 }
 
-/* LEFT CARD */
+/* ================= LEFT CARD ================= */
+
 .route-selector {
   background: #ffffff;
-  border-radius: 18px;
-  padding: 22px;
-  box-shadow: 0 14px 36px rgba(15, 23, 42, 0.1);
+  border-radius: 22px;
+  padding: 26px;
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
 }
 
 .route-selector h3 {
-  font-size: 16.5px;
+  font-size: 17px;
   font-weight: 600;
-  margin-bottom: 14px;
+  margin-bottom: 20px;
 }
 
-/* ROUTE OPTIONS */
+/* ================= ROUTE OPTION BUTTON ================= */
+
 .select-route-btn {
   width: 100%;
-  padding: 13px 14px;
-  border-radius: 12px;
+  padding: 16px;
+  border-radius: 16px;
   border: 1px solid rgba(15, 23, 42, 0.12);
-  background: #f9fafb;
+  background: #f8fafc;
   text-align: left;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.25s ease;
 }
 
 .select-route-btn span {
   display: block;
-  font-size: 12.5px;
+  font-size: 13px;
   color: #64748b;
-  margin-top: 4px;
+  margin-top: 6px;
 }
 
 .select-route-btn:hover {
@@ -81,42 +88,47 @@
 .select-route-btn.active {
   border-color: #2bb4a6;
   background: rgba(43, 180, 166, 0.12);
+  box-shadow: 0 6px 18px rgba(43, 180, 166, 0.15);
 }
 
 .route-note {
-  font-size: 12.5px;
+  font-size: 13px;
   color: #64748b;
-  margin-top: 6px;
+  margin-top: 8px;
 }
 
-/* RIGHT CARD */
+/* ================= RIGHT MAIN CARD ================= */
+
 .route-card {
   background: #ffffff;
-  border-radius: 20px;
-  padding: 24px;
-  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
+  border-radius: 26px;
+  padding: 34px;
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.06);
 }
 
-/* TIME CONTEXT */
+/* ================= TIME CONTEXT ================= */
+
 .time-context {
-  font-size: 13px;
+  font-size: 14px;
   color: #475569;
-  margin-bottom: 14px;
+  margin-bottom: 20px;
 }
 
-/* SECTION TITLES */
+/* ================= SECTION TITLES ================= */
+
 .section-title {
-  font-size: 16.5px;
+  font-size: 18px;
   font-weight: 600;
-  margin: 22px 0 10px;
+  margin: 32px 0 14px;
 }
 
-/* STAR RATING */
+/* ================= STAR RATING ================= */
+
 .star-row {
   display: flex;
-  gap: 8px;
-  font-size: 30px;
-  margin-bottom: 8px;
+  gap: 12px;
+  font-size: 34px;
+  margin-bottom: 16px;
 }
 
 .star {
@@ -130,38 +142,42 @@
 }
 
 .star:hover {
-  transform: scale(1.08);
+  transform: scale(1.12);
 }
 
-/* CONDITIONS */
+/* ================= CONDITIONS GRID ================= */
+
 .option-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 14px;
+  gap: 24px;
 }
 
+/* Each group */
 .select-group {
   background: #f8fafc;
-  padding: 12px;
-  border-radius: 14px;
+  padding: 18px;
+  border-radius: 18px;
 }
 
 .select-label {
-  font-size: 13.5px;
+  font-size: 14px;
+  font-weight: 500;
   color: #475569;
-  margin-bottom: 6px;
+  margin-bottom: 12px;
 }
 
-/* CONDITION BUTTONS */
+/* ================= CONDITION BUTTON ================= */
+
 .option-btn {
   width: 100%;
-  padding: 9px;
-  border-radius: 9px;
+  padding: 11px;
+  border-radius: 12px;
   border: 1px solid rgba(15, 23, 42, 0.12);
   background: #ffffff;
-  margin-bottom: 6px;
+  margin-bottom: 10px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.25s ease;
 }
 
 .option-btn:hover {
@@ -171,23 +187,25 @@
 .option-btn.active {
   border-color: #2bb4a6;
   background: rgba(43, 180, 166, 0.14);
+  box-shadow: 0 4px 12px rgba(43, 180, 166, 0.12);
 }
 
-/* INCIDENT TAGS */
+/* ================= INCIDENT TAGS ================= */
+
 .tag-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 12px;
 }
 
 .tag-btn {
-  padding: 7px 12px;
-  font-size: 13px;
+  padding: 9px 16px;
+  font-size: 13.5px;
   border-radius: 999px;
   border: 1px solid rgba(15, 23, 42, 0.15);
   background: #ffffff;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.25s ease;
 }
 
 .tag-btn:hover {
@@ -199,36 +217,38 @@
   background: rgba(43, 180, 166, 0.15);
 }
 
-/* COMMENT */
+/* ================= COMMENT BOX ================= */
+
 .rate-comment {
   width: 100%;
-  min-height: 90px;
-  padding: 12px;
-  border-radius: 12px;
+  min-height: 110px;
+  padding: 16px;
+  border-radius: 16px;
   border: 1px solid rgba(15, 23, 42, 0.12);
-  margin-top: 14px;
+  margin-top: 20px;
   font-size: 14px;
   resize: vertical;
 }
 
-/* SUBMIT */
+/* ================= SUBMIT BUTTON ================= */
+
 .submit-rating {
-  margin-top: 20px;
+  margin-top: 28px;
   width: 100%;
-  padding: 14px;
-  border-radius: 12px;
+  padding: 18px;
+  border-radius: 16px;
   border: none;
   background: linear-gradient(135deg, #2bb4a6, #20d1c2);
   color: #ffffff;
   font-size: 15px;
   font-weight: 600;
-  box-shadow: 0 8px 22px rgba(43, 180, 166, 0.35);
+  box-shadow: 0 14px 35px rgba(43, 180, 166, 0.35);
   cursor: pointer;
   transition: transform 0.2s ease;
 }
 
 .submit-rating:hover {
-  transform: translateY(-1px);
+  transform: translateY(-2px);
 }
 
 .submit-rating:disabled {
@@ -236,26 +256,21 @@
   cursor: not-allowed;
 }
 
-/* TRUST NOTE */
+/* ================= TRUST NOTE ================= */
+
 .trust-note {
-  margin-top: 10px;
-  font-size: 12.5px;
+  margin-top: 14px;
+  font-size: 13px;
   color: #64748b;
   text-align: center;
 }
 
-.select-route-btn span {
-  font-size: 0.85rem;
-  color: #64748b;
-  margin-top: 4px;
-}
+/* ================= RESPONSIVE ================= */
 
-
-/* MOBILE */
-@media (max-width: 900px) {
+@media (max-width: 950px) {
   .rate-layout {
     grid-template-columns: 1fr;
-    gap: 22px;
+    gap: 32px;
   }
 
   .option-grid {
