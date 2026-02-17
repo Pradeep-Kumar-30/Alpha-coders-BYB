@@ -1,6 +1,7 @@
 import "./Login.css";
 import { getDeviceId } from "../utils/device";
 import { getFingerprint } from "../utils/fingerprint";
+import { api } from "../utils/api";
 import { useState } from "react";
 import Navbar from "../components/Navbar";
 
@@ -12,19 +13,29 @@ export default function AnonymousLogin({ user, onLogin }) {
     setStep(2); // show generating screen
 
     setTimeout(async () => {
-      const deviceId = getDeviceId();
-      const fingerprint = await getFingerprint();
+      try {
+        const deviceId = getDeviceId();
+        const fingerprint = await getFingerprint();
 
-      const newUser = {
-        deviceId,
-        fingerprint,
-        createdAt: new Date().toISOString(),
-      };
+        // Call backend API to register anonymous user
+        const response = await api.auth.anonymousLogin(deviceId, fingerprint);
 
-      localStorage.setItem("anon_user", JSON.stringify(newUser));
-      onLogin(newUser);
+        const newUser = {
+          deviceId,
+          fingerprint,
+          userId: response.userId, // Get user ID from backend
+          createdAt: new Date().toISOString(),
+        };
 
-      setStep(3); // move to location permission
+        localStorage.setItem("anon_user", JSON.stringify(newUser));
+        onLogin(newUser);
+
+        setStep(3); // move to location permission
+      } catch (error) {
+        console.error("Failed to login:", error);
+        alert("Failed to connect. Please try again.");
+        setStep(1);
+      }
     }, 1500);
   };
 
@@ -35,11 +46,23 @@ export default function AnonymousLogin({ user, onLogin }) {
     }
 
     navigator.geolocation.getCurrentPosition(
-      () => setLocationStatus("Location access granted ✅"),
-      () =>
-        setLocationStatus(
-          "Location denied. Some safety features may be limited."
-        )
+      (pos) => {
+        setLocationStatus("Location access granted ✅");
+        // Notify backend about location permission
+        const user = JSON.parse(localStorage.getItem("anon_user"));
+        if (user?.userId) {
+          api.location.updatePermission(user.userId, true).catch(err => console.error(err));
+        }
+      },
+      (error) => {
+        const message = "Location denied. Some safety features may be limited.";
+        setLocationStatus(message);
+        // Notify backend about denied location permission
+        const user = JSON.parse(localStorage.getItem("anon_user"));
+        if (user?.userId) {
+          api.location.updatePermission(user.userId, false).catch(err => console.error(err));
+        }
+      }
     );
   };
 

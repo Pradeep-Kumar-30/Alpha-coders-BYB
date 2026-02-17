@@ -11,19 +11,30 @@ import connectDb from "./config/db.js";
 import authRoutes from "./routes/auth.route.js";
 import locationRoutes from "./routes/location.route.js";
 import routeRoutes from "./routes/routeRoutes.js";
+import reportRoutes from "./routes/report.route.js";
 import errorMiddleware from "./middleware/error.middleware.js";
 
 let port = process.env.PORT || 6000;
 
 let app = express();
 
-app.use(express.json());
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ limit: "50mb", extended: true }));
 app.use(cookieParser());
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: (origin, callback) => {
+      // Allow any localhost port during development
+      if (!origin || origin.startsWith("http://localhost")) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
@@ -37,7 +48,7 @@ app.get("/", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/location", locationRoutes);
 app.use("/api/routes", routeRoutes);
-
+app.use("/api/reports", reportRoutes);
 
 app.use(errorMiddleware);
 

@@ -4,12 +4,15 @@ import { MapPin, Navigation, Clock, Search } from "lucide-react";
 import { useState } from "react";
 import { fetchOSRMRoutes } from "../utils/osrm";
 import { createRankedRoutes } from "../utils/routeranking";
+import { api } from "../utils/api";
+import RouteMap from "../components/RouteMap";
 
 
 export default function SafeRoutePlanner() {
   const [mode, setMode] = useState("now");
   const [routes, setRoutes] = useState([]);
-const [loadingRoutes, setLoadingRoutes] = useState(false);
+  const [loadingRoutes, setLoadingRoutes] = useState(false);
+  const [selectedRouteId, setSelectedRouteId] = useState(null);
 
 
   // FROM
@@ -90,12 +93,37 @@ const [loadingRoutes, setLoadingRoutes] = useState(false);
 
     console.log("OSRM Routes:", osrmRoutes);
 
-    const rankedRoutes = await createRankedRoutes(osrmRoutes);
-    setRoutes(rankedRoutes);
+    const departureTime = getDepartureTime();
+    
+    // Use backend API to rank routes with safety data
+    const rankedRoutes = await api.routes.rankRoutes(
+      osrmRoutes,
+      currentLocation,
+      destination,
+      departureTime
+    );
+    
+    // Fallback to local ranking if backend doesn't return formatted data
+    if (!rankedRoutes || rankedRoutes.length === 0) {
+      const localRanked = await createRankedRoutes(osrmRoutes);
+      setRoutes(localRanked);
+    } else {
+      setRoutes(rankedRoutes);
+    }
 
   } catch (err) {
     console.error(err);
-    alert("Failed to fetch routes");
+    // Fallback to local route ranking if backend fails
+    try {
+      const osrmRoutes = await fetchOSRMRoutes(
+        currentLocation,
+        destination
+      );
+      const rankedRoutes = await createRankedRoutes(osrmRoutes);
+      setRoutes(rankedRoutes);
+    } catch {
+      alert("Failed to fetch routes");
+    }
   }
 
   setLoadingRoutes(false);
@@ -285,38 +313,98 @@ const [loadingRoutes, setLoadingRoutes] = useState(false);
 
         
        <div className="planner-right">
-  {loadingRoutes ? (
-    <div className="routes-empty">
-      <h3>Finding safest routes…</h3>
-    </div>
-  ) : routes.length === 0 ? (
-    <div className="routes-empty">
-      <div className="empty-icon">📍</div>
-      <h3>Routes will appear here</h3>
-      <p>
-        Enter start and destination to view the safest routes based on
-        community insights.
-      </p>
-    </div>
-  ) : (
-    routes.map((route) => (
-      <div key={route.id} className={`route-card ${route.color}`}>
-        <div className="route-header">
-          <h4>{route.label} Route</h4>
-          <span className="badge">{route.label}</span>
-        </div>
+          {routes.length > 0 ? (
+            <>
+              {selectedRouteId && (
+                <div className="route-factors">
+                  <h3>Route Safety Factors</h3>
+                  <div className="factors-grid">
+                    <div className="factor-item">
+                      <span className="factor-icon">🛣️</span>
+                      <p className="factor-label">Lighting</p>
+                      <p className="factor-value">Well Lit</p>
+                    </div>
+                    <div className="factor-item">
+                      <span className="factor-icon">👥</span>
+                      <p className="factor-label">Crowd Level</p>
+                      <p className="factor-value">Moderate</p>
+                    </div>
+                    <div className="factor-item">
+                      <span className="factor-icon">🚔</span>
+                      <p className="factor-label">Police Presence</p>
+                      <p className="factor-value">Visible</p>
+                    </div>
+                    <div className="factor-item">
+                      <span className="factor-icon">⚠️</span>
+                      <p className="factor-label">Recent Reports</p>
+                      <p className="factor-value">2 in last 24h</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              <div className="map-container">
+                <RouteMap
+                  fromLocation={currentLocation}
+                  toLocation={destination}
+                  routes={routes}
+                  selectedRouteId={selectedRouteId}
+                  onRouteSelect={setSelectedRouteId}
+                />
+              </div>
 
-        <div className="route-metrics">
-          <p>🛡 Safety: ⭐ {route.safety.toFixed(1)}</p>
-          <p>⏱ Time: {(route.duration / 60).toFixed(0)} mins</p>
-          <p>📏 Distance: {(route.distance / 1000).toFixed(2)} km</p>
-        </div>
+              <div className="routes-list">
+                {loadingRoutes ? (
+                  <div className="routes-empty">
+                    <h3>Finding safest routes…</h3>
+                  </div>
+                ) : (
+                  routes.map((route) => (
+                    <div
+                      key={route.id}
+                      className={`route-card ${route.color} ${
+                        selectedRouteId === route.id ? "selected" : ""
+                      }`}
+                      onClick={() => setSelectedRouteId(route.id)}
+                    >
+                      <div className="route-header">
+                        <h4>{route.label} Route</h4>
+                        <span className="badge">{route.label}</span>
+                      </div>
 
-        <button className="select-btn">Start Route</button>
-      </div>
-    ))
-  )}
-</div>
+                      <div className="route-metrics">
+                        <p>🛡 Safety: ⭐ {route.safety.toFixed(1)}</p>
+                        <p>⏱ Time: {(route.duration / 60).toFixed(0)} mins</p>
+                        <p>📏 Distance: {(route.distance / 1000).toFixed(2)} km</p>
+                      </div>
+
+                      <button
+                        className="select-btn"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedRouteId(route.id);
+                        }}
+                      >
+                        {selectedRouteId === route.id
+                          ? "✓ Selected"
+                          : "Start Route"}
+                      </button>
+                    </div>
+                  ))
+                )}
+              </div>
+            </>
+          ) : (
+            <div className="routes-empty">
+              <div className="empty-icon">📍</div>
+              <h3>Routes will appear here</h3>
+              <p>
+                Enter start and destination to view the safest routes based on
+                community insights.
+              </p>
+            </div>
+          )}
+        </div>
 
 
       </div>
