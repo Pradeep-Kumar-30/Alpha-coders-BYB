@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import "./Ratings.css";
 import Navbar from "../components/Navbar";
 import { useLocationStore } from "../Counterstore";
+import { api } from "../utils/api";
+import { getDeviceId } from "../utils/device";
 
 export default function RateRoute() {
   const [routeSource, setRouteSource] = useState(null);
@@ -13,15 +15,17 @@ export default function RateRoute() {
   const [police, setPolice] = useState("");
   const [incidentTags, setIncidentTags] = useState([]);
   const [comment, setComment] = useState("");
- 
-const { location, status, fetchLocation,placeName } = useLocationStore();
-useEffect(() => {
-  if (status === "granted" && location) {
-    setRouteSource("current");
-    setRouteSelected(true);
-  }
-}, [status, location]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitMessage, setSubmitMessage] = useState("");
 
+  const { location, status, fetchLocation, placeName } = useLocationStore();
+
+  useEffect(() => {
+    if (status === "granted" && location) {
+      setRouteSource("current");
+      setRouteSelected(true);
+    }
+  }, [status, location]);
 
   const incidentOptions = [
     "Eve-teasing",
@@ -32,9 +36,8 @@ useEffect(() => {
   ];
 
   const handleCurrentRoute = () => {
-  fetchLocation();
-};
-
+    fetchLocation();
+  };
 
   const selectRoute = (type) => {
     setRouteSource(type);
@@ -49,15 +52,60 @@ useEffect(() => {
     );
   };
 
-  return (
-    <>
-      <Navbar />
+  const handleSubmitReport = async () => {
+    if (!location) {
+      alert("Location is required to submit a report");
+      return;
+    }
 
+    setIsSubmitting(true);
+    setSubmitMessage("");
+
+    try {
+      const user = JSON.parse(localStorage.getItem("anon_user"));
+      const reportData = {
+        userId: user?.userId || null,
+        lat: parseFloat(location.lat),
+        lng: parseFloat(location.lng),
+        safetyScore: parseInt(safetyScore),
+        lighting: lighting || null,
+        crowd: crowd || null,
+        police: police || null,
+        incidentTags: incidentTags.length > 0 ? incidentTags : [],
+        comment: comment || "",
+        deviceId: getDeviceId(),
+      };
+
+      console.log("Submitting report data:", reportData);
+
+      const response = await api.reports.submit(reportData);
+      console.log("Report submitted successfully:", response);
+      setSubmitMessage("✅ Report submitted successfully!");
       
+      // Reset form
+      setTimeout(() => {
+        setSafetyScore(0);
+        setLighting("");
+        setCrowd("");
+        setPolice("");
+        setIncidentTags([]);
+        setComment("");
+        setSubmitMessage("");
+      }, 2000);
+    } catch (error) {
+      console.error("Failed to submit report:", error);
+      setSubmitMessage(`❌ Failed to submit report: ${error.message}`);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="rate-page">
+      <Navbar />
 
       {/* HEADER */}
       <section className="rate-header">
-        
         <p>Your feedback strengthens time-aware, community-verified safety.</p>
       </section>
 
@@ -68,21 +116,24 @@ useEffect(() => {
           <h3>Select route to rate</h3>
 
           <button
-  type="button" disabled={status === "loading"}
-  className={`select-route-btn ${
-    routeSource === "current" ? "active" : ""
-  }`}
-  onClick={handleCurrentRoute}
->
-  📍 Rate from current location
-  <span><span>
-    {status === "idle" && "Use your live location"}
-    {status === "loading" && "Detecting location…"}
-    {status === "granted" && placeName && `Near ${placeName}`}
-    {status === "denied" && "Location permission required"}
-  </span></span>
-</button>
-
+            type="button"
+            disabled={status === "loading"}
+            className={`select-route-btn ${
+              routeSource === "current" ? "active" : ""
+            }`}
+            onClick={handleCurrentRoute}
+          >
+            📍 Rate from current location
+            <span>
+              {status === "idle" && "Use your live location"}
+              {status === "loading" && "Detecting location…"}
+              {status === "granted" &&
+                placeName &&
+                `Near ${placeName}`}
+              {status === "denied" &&
+                "Location permission required"}
+            </span>
+          </button>
 
           <button
             type="button"
@@ -111,26 +162,27 @@ useEffect(() => {
           </p>
         </div>
 
-
-
-
         {/* RIGHT COLUMN */}
         <div className="route-card">
-
           {/* LOCATION STATUS */}
-{status === "loading" && (
-  <p className="location-info">📡 Getting your location…</p>
-)}
+          {status === "loading" && (
+            <p className="location-info">
+              📡 Getting your location…
+            </p>
+          )}
 
-{status === "granted" && routeSource === "current" && (
-  <p className="location-info">📍 Using current location</p>
-)}
+          {status === "granted" &&
+            routeSource === "current" && (
+              <p className="location-info">
+                📍 Using current location
+              </p>
+            )}
 
-{status === "denied" && (
-  <p className="location-error">
-    ⚠️ Location permission required to rate this route
-  </p>
-)}
+          {status === "denied" && (
+            <p className="location-error">
+              ⚠️ Location permission required to rate this route
+            </p>
+          )}
 
           {!routeSelected ? (
             <p className="placeholder-text">
@@ -144,12 +196,16 @@ useEffect(() => {
               </p>
 
               {/* SAFETY SCORE */}
-              <h3 className="section-title">Overall Safety</h3>
+              <h3 className="section-title">
+                Overall Safety
+              </h3>
               <div className="star-row">
                 {[1, 2, 3, 4, 5].map((s) => (
                   <span
                     key={s}
-                    className={`star ${safetyScore >= s ? "active" : ""}`}
+                    className={`star ${
+                      safetyScore >= s ? "active" : ""
+                    }`}
                     onClick={() => setSafetyScore(s)}
                   >
                     ★
@@ -158,37 +214,57 @@ useEffect(() => {
               </div>
 
               {/* CONDITIONS */}
-              <h3 className="section-title">Route Conditions</h3>
+              <h3 className="section-title">
+                Route Conditions
+              </h3>
               <div className="option-grid">
                 <SelectGroup
                   label="Lighting"
-                  options={["Well lit", "Partially lit", "Poor / dark"]}
+                  options={[
+                    "Well lit",
+                    "Partially lit",
+                    "Poor / dark",
+                  ]}
                   value={lighting}
                   onChange={setLighting}
                 />
+
                 <SelectGroup
                   label="Crowd Level"
-                  options={["Crowded", "Moderate", "Isolated"]}
+                  options={[
+                    "Crowded",
+                    "Moderate",
+                    "Isolated",
+                  ]}
                   value={crowd}
                   onChange={setCrowd}
                 />
+
                 <SelectGroup
                   label="Police Presence"
-                  options={["Visible", "Sometimes", "Not present"]}
+                  options={[
+                    "Visible",
+                    "Sometimes",
+                    "Not present",
+                  ]}
                   value={police}
                   onChange={setPolice}
                 />
               </div>
 
               {/* INCIDENTS */}
-              <h3 className="section-title">Incidents Observed</h3>
+              <h3 className="section-title">
+                Incidents Observed
+              </h3>
               <div className="tag-grid">
                 {incidentOptions.map((tag) => (
                   <button
                     key={tag}
                     type="button"
                     className={`tag-btn ${
-                      incidentTags.includes(tag) ? "active" : ""
+                      incidentTags.includes(tag)
+                        ? "active"
+                        : ""
                     }`}
                     onClick={() => toggleIncident(tag)}
                   >
@@ -202,17 +278,24 @@ useEffect(() => {
                 className="rate-comment"
                 placeholder="Optional note (e.g. Safe till 9 PM)"
                 value={comment}
-                onChange={(e) => setComment(e.target.value)}
+                onChange={(e) =>
+                  setComment(e.target.value)
+                }
                 maxLength={200}
               />
 
               {/* SUBMIT */}
               <button
                 className="submit-rating"
-                disabled={safetyScore === 0}
+                disabled={safetyScore === 0 || isSubmitting}
+                onClick={handleSubmitReport}
               >
-                Submit Anonymous Report
+                {isSubmitting ? "Submitting..." : "Submit Anonymous Report"}
               </button>
+
+              {submitMessage && (
+                <p className="submit-message">{submitMessage}</p>
+              )}
 
               <p className="trust-note">
                 🔒 Anonymous · One-device-one-weight · Time-aware
@@ -221,11 +304,11 @@ useEffect(() => {
           )}
         </div>
       </section>
-    </>
+    </div>
   );
 }
 
-/* REUSABLE SELECT GROUP */
+/* REUSABLE COMPONENT */
 function SelectGroup({ label, options, value, onChange }) {
   return (
     <div className="select-group">
@@ -234,7 +317,9 @@ function SelectGroup({ label, options, value, onChange }) {
         <button
           key={opt}
           type="button"
-          className={`option-btn ${value === opt ? "active" : ""}`}
+          className={`option-btn ${
+            value === opt ? "active" : ""
+          }`}
           onClick={() => onChange(opt)}
         >
           {opt}

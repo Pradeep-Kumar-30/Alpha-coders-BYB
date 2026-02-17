@@ -1,33 +1,32 @@
-/* ================= PAGE ================= */
+/* ================= PAGE WRAPPER ================= */
 
 .rate-page {
+  min-height: 100vh;
   width: 100%;
+  padding-top: 90px;          /* Prevent navbar overlap */
+  padding-bottom: 60px;
+  box-sizing: border-box;
+
   background:
     radial-gradient(circle at top, rgba(43,180,166,0.08), transparent 50%),
     #f8fafc;
-  padding-bottom: 60px;
 }
 
 /* ================= HEADER ================= */
 
 .rate-header {
   max-width: 1200px;
-  margin: 30px auto 20px;
+  margin: 0 auto 20px;
   padding: 0 24px;
   text-align: center;
 }
 
 .rate-header h1 {
-  font-size: clamp(32px, 4vw, 48px);
   font-weight: 600;
 }
 
-.rate-header h1 span {
-  color: #2bb4a6;
-}
-
 .rate-header p {
-  margin-top: 8px;
+  margin-top: 12px;
   font-size: 15px;
   color: #475569;
 }
@@ -36,13 +35,14 @@
 
 .rate-layout {
   max-width: 1200px;
-  margin: 40px auto;
+  margin: 30px auto;
   padding: 0 24px;
+  box-sizing: border-box;
 
   display: grid;
-  grid-template-columns: 380px 1fr;
-  gap: 48px;
-  align-items: flex-start;
+  grid-template-columns: minmax(320px, 360px) 1fr;
+  gap: 40px;
+  align-items: start;
 }
 
 /* ================= LEFT CARD ================= */
@@ -51,27 +51,29 @@
   background: #ffffff;
   border-radius: 22px;
   padding: 26px;
-  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
+  box-shadow: 0 12px 35px rgba(15, 23, 42, 0.08);
+  box-sizing: border-box;
 }
 
 .route-selector h3 {
   font-size: 17px;
   font-weight: 600;
-  margin-bottom: 20px;
+  margin-bottom: 18px;
 }
 
-/* ================= ROUTE OPTION BUTTON ================= */
+/* ================= ROUTE BUTTON ================= */
 
 .select-route-btn {
   width: 100%;
   padding: 16px;
-  border-radius: 16px;
+  border-radius: 14px;
   border: 1px solid rgba(15, 23, 42, 0.12);
   background: #f8fafc;
   text-align: left;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
   cursor: pointer;
   transition: all 0.25s ease;
+  box-sizing: border-box;
 }
 
 .select-route-btn span {
@@ -94,16 +96,39 @@
 .route-note {
   font-size: 13px;
   color: #64748b;
-  margin-top: 8px;
+  margin-top: 10px;
 }
 
-/* ================= RIGHT MAIN CARD ================= */
+/* ================= RIGHT CARD ================= */
 
 .route-card {
   background: #ffffff;
   border-radius: 26px;
-  padding: 34px;
-  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.06);
+  padding: 32px;
+  box-shadow: 0 15px 45px rgba(15, 23, 42, 0.06);
+  min-height: 500px;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* ================= STATUS TEXT ================= */
+
+.location-info {
+  font-size: 14px;
+  color: #475569;
+  margin-bottom: 14px;
+}
+
+.location-error {
+  font-size: 14px;
+  color: #dc2626;
+  margin-bottom: 14px;
+}
+
+.placeholder-text {
+  color: #64748b;
+  font-size: 14px;
 }
 
 /* ================= TIME CONTEXT ================= */
@@ -114,27 +139,27 @@
   margin-bottom: 20px;
 }
 
-/* ================= SECTION TITLES ================= */
+/* ================= SECTION TITLE ================= */
 
 .section-title {
   font-size: 18px;
   font-weight: 600;
-  margin: 32px 0 14px;
+  margin: 28px 0 14px;
 }
 
 /* ================= STAR RATING ================= */
 
 .star-row {
   display: flex;
-  gap: 12px;
+  gap: 10px;
   font-size: 34px;
-  margin-bottom: 16px;
+  margin-bottom: 10px;
 }
 
 .star {
   cursor: pointer;
   color: #cbd5e1;
-  transition: color 0.2s ease, transform 0.15s ease;
+  transition: all 0.2s ease;
 }
 
 .star.active {
@@ -142,22 +167,24 @@
 }
 
 .star:hover {
-  transform: scale(1.12);
+  transform: scale(1.1);
 }
 
-/* ================= CONDITIONS GRID ================= */
+/* ================= OPTION GRID ================= */
 
 .option-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 22px;
 }
 
-/* Each group */
+/* ================= SELECT GROUP ================= */
+
 .select-group {
   background: #f8fafc;
   padding: 18px;
-  border-radius: 18px;
+  border-radius: 16px;
+  box-sizing: border-box;
 }
 
 .select-label {
@@ -167,17 +194,18 @@
   margin-bottom: 12px;
 }
 
-/* ================= CONDITION BUTTON ================= */
+/* ================= OPTION BUTTON ================= */
 
 .option-btn {
   width: 100%;
-  padding: 11px;
+  padding: 10px;
   border-radius: 12px;
   border: 1px solid rgba(15, 23, 42, 0.12);
   background: #ffffff;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
   cursor: pointer;
   transition: all 0.25s ease;
+  box-sizing: border-box;
 }
 
 .option-btn:hover {
@@ -186,8 +214,7 @@
 
 .option-btn.active {
   border-color: #2bb4a6;
-  background: rgba(43, 180, 166, 0.14);
-  box-shadow: 0 4px 12px rgba(43, 180, 166, 0.12);
+  background: rgba(43, 180, 166, 0.15);
 }
 
 /* ================= INCIDENT TAGS ================= */
@@ -195,12 +222,12 @@
 .tag-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 10px;
 }
 
 .tag-btn {
-  padding: 9px 16px;
-  font-size: 13.5px;
+  padding: 8px 14px;
+  font-size: 13px;
   border-radius: 999px;
   border: 1px solid rgba(15, 23, 42, 0.15);
   background: #ffffff;
@@ -217,32 +244,38 @@
   background: rgba(43, 180, 166, 0.15);
 }
 
-/* ================= COMMENT BOX ================= */
+/* ================= TEXTAREA ================= */
 
 .rate-comment {
   width: 100%;
-  min-height: 110px;
-  padding: 16px;
-  border-radius: 16px;
+  min-height: 100px;
+  padding: 14px;
+  border-radius: 14px;
   border: 1px solid rgba(15, 23, 42, 0.12);
   margin-top: 20px;
   font-size: 14px;
   resize: vertical;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.rate-comment:focus {
+  border-color: #2bb4a6;
 }
 
 /* ================= SUBMIT BUTTON ================= */
 
 .submit-rating {
-  margin-top: 28px;
+  margin-top: 26px;
   width: 100%;
-  padding: 18px;
-  border-radius: 16px;
+  padding: 16px;
+  border-radius: 14px;
   border: none;
   background: linear-gradient(135deg, #2bb4a6, #20d1c2);
   color: #ffffff;
   font-size: 15px;
   font-weight: 600;
-  box-shadow: 0 14px 35px rgba(43, 180, 166, 0.35);
+  box-shadow: 0 12px 30px rgba(43, 180, 166, 0.35);
   cursor: pointer;
   transition: transform 0.2s ease;
 }
@@ -259,7 +292,7 @@
 /* ================= TRUST NOTE ================= */
 
 .trust-note {
-  margin-top: 14px;
+  margin-top: 12px;
   font-size: 13px;
   color: #64748b;
   text-align: center;
@@ -270,10 +303,9 @@
 @media (max-width: 950px) {
   .rate-layout {
     grid-template-columns: 1fr;
-    gap: 32px;
   }
 
-  .option-grid {
-    grid-template-columns: 1fr;
+  .route-card {
+    margin-top: 20px;
   }
 }
