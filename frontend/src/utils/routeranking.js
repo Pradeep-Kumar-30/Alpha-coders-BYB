@@ -12,41 +12,28 @@ export const segmentRoute = (coordinates, step = 15) => {
   return segments;
 };
 
-// MOCK safety fetch (replace later with backend)
-export const fetchSafetyScore = async () => {
+// MOCK safety fetch
+const fetchSafetyScore = async () => {
   return Math.floor(Math.random() * 3) + 2; // 2–4
 };
 
 export const createRankedRoutes = async (osrmRoutes) => {
-  // ✅ SAFETY CHECK
   if (!osrmRoutes || osrmRoutes.length === 0) {
-    throw new Error("No OSRM routes available");
+    return [];
   }
 
   const base = osrmRoutes[0];
 
-  // ✅ SAFETY CHECK
   if (!base.geometry || !base.geometry.coordinates) {
-    throw new Error("Invalid OSRM geometry");
+    return [];
   }
 
   const segments = segmentRoute(base.geometry.coordinates);
 
-  // ✅ FALLBACK (very important)
   if (segments.length === 0) {
-    return [
-      {
-        id: "balanced",
-        label: "Balanced",
-        color: "blue",
-        safety: 3,
-        duration: base.duration,
-        distance: base.distance,
-      },
-    ];
+    return [];
   }
 
-  // faster + cleaner
   const scores = await Promise.all(
     segments.map(() => fetchSafetyScore())
   );
@@ -81,3 +68,5 @@ export const createRankedRoutes = async (osrmRoutes) => {
     },
   ];
 };
+
+

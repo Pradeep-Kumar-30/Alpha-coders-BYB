@@ -4,6 +4,7 @@ import HeroSection from "./pages/Home";
 import AnonymousLogin from "./pages/Login";
 import SafeRoutePlanner from "./pages/RoutePlanner";
 import RateRoute from "./pages/Ratings";
+import MapPage from "./pages/MapPage";
 
 function App() {
   const [user, setUser] = useState(() => {
@@ -17,14 +18,14 @@ function App() {
       <Route path="/" element={<HeroSection />} />
 
       {/* Route Rating Page */}
-<Route
-  path="/ratings"
-  element={
-    <div className="full-width-page">
-      <RateRoute />
-    </div>
-  }
-/>
+      <Route
+        path="/ratings"
+        element={
+          <div className="full-width-page">
+            <RateRoute />
+          </div>
+        }
+      />
 
       {/* Signup / Anonymous Login */}
       <Route
@@ -32,15 +33,23 @@ function App() {
         element={<AnonymousLogin user={user} onLogin={setUser} />}
       />
 
+      {/* Planner */}
       <Route
         path="/planner"
-        element={user ? <SafeRoutePlanner  /> : <Navigate to="/signup" />}
+        element={user ? <SafeRoutePlanner /> : <Navigate to="/signup" />}
       />
-      
-      {/* Catch-all route */}
+
+      {/* Map Page */}
+      <Route
+        path="/map"
+        element={user ? <MapPage /> : <Navigate to="/signup" />}
+      />
+
+      {/* Catch-all (ALWAYS LAST) */}
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>
   );
 }
 
 export default App;
+

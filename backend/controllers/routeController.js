@@ -1,6 +1,7 @@
-import Report from "../models/Report.js";
+import Report from "../model/Report.model.js";
 import { calculateRiskScore } from "../services/riskEngine.js";
 import { rankRoutesWithRotation } from "../services/routeRanker.js";
+
 
 export const rankRoutes = async (req, res) => {
   try {
@@ -11,7 +12,7 @@ export const rankRoutes = async (req, res) => {
       const reports = await Report.find({ routeId: route.id });
       route.risk = calculateRiskScore(reports, now);
     }
-
+  
     const ranked = rankRoutesWithRotation(routes);
 
     res.json(ranked);
