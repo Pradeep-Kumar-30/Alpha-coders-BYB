@@ -33,7 +33,7 @@ export default function SafeRoutePlanner() {
   const [destination, setDestination] = useState(null);
   const [toSuggestions, setToSuggestions] = useState([]);
 
-  /* ---------- AUTOCOMPLETE ---------- */
+  /* ---------- AUTOCOMPLETE --*/
   const fetchSuggestions = async (query, setList) => {
     if (!query || query.length < 3) {
       setList([]);
