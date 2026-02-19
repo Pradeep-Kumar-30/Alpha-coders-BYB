@@ -291,7 +291,7 @@ export default function SafeRoutePlanner() {
                 <div className="route-metrics">
                   <p>⏱ Time: {(route.duration / 60).toFixed(0)} mins</p>
                   <p>📏 Distance: {(route.distance / 1000).toFixed(2)} km</p>
-                  <p>🚗 Mode: {vehicleMode.toUpperCase()}</p>
+                  <p> Mode: {vehicleMode.toUpperCase()}</p>
                   <p>🕒 {timeMode === "now" ? "Leave Now" : "Scheduled"}</p>
                 </div>
 
