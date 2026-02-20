@@ -3,34 +3,36 @@ import { getDeviceId } from "../utils/device";
 import { getFingerprint } from "../utils/fingerprint";
 import { api } from "../utils/api";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom"; //Added
 import Navbar from "../components/Navbar";
 
 export default function AnonymousLogin({ user, onLogin }) {
+  const navigate = useNavigate(); //Added
+
   const [step, setStep] = useState(user ? 3 : 1);
   const [locationStatus, setLocationStatus] = useState(null);
 
   const generateAnonymousId = async () => {
-    setStep(2); // show generating screen
+    setStep(2);
 
     setTimeout(async () => {
       try {
         const deviceId = getDeviceId();
         const fingerprint = await getFingerprint();
 
-        // Call backend API to register anonymous user
         const response = await api.auth.anonymousLogin(deviceId, fingerprint);
 
         const newUser = {
           deviceId,
           fingerprint,
-          userId: response.userId, // Get user ID from backend
+          userId: response.userId,
           createdAt: new Date().toISOString(),
         };
 
         localStorage.setItem("anon_user", JSON.stringify(newUser));
         onLogin(newUser);
 
-        setStep(3); // move to location permission
+        setStep(3);
       } catch (error) {
         console.error("Failed to login:", error);
         alert("Failed to connect. Please try again.");
@@ -48,19 +50,27 @@ export default function AnonymousLogin({ user, onLogin }) {
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         setLocationStatus("Location access granted ✅");
-        // Notify backend about location permission
+
         const user = JSON.parse(localStorage.getItem("anon_user"));
         if (user?.userId) {
-          api.location.updatePermission(user.userId, true).catch(err => console.error(err));
+          api.location
+            .updatePermission(user.userId, true)
+            .catch((err) => console.error(err));
         }
+
+        //REQUIRED CHANGE: Redirect to planner
+        navigate("/planner");
       },
       (error) => {
-        const message = "Location denied. Some safety features may be limited.";
+        const message =
+          "Location denied. Some safety features may be limited.";
         setLocationStatus(message);
-        // Notify backend about denied location permission
+
         const user = JSON.parse(localStorage.getItem("anon_user"));
         if (user?.userId) {
-          api.location.updatePermission(user.userId, false).catch(err => console.error(err));
+          api.location
+            .updatePermission(user.userId, false)
+            .catch((err) => console.error(err));
         }
       }
     );
@@ -119,7 +129,6 @@ export default function AnonymousLogin({ user, onLogin }) {
               <p className="login-desc">
                 Setting up a secure identity on your device…
               </p>
-
               <div className="loader" />
             </>
           )}
@@ -148,7 +157,6 @@ export default function AnonymousLogin({ user, onLogin }) {
                 🔒 Your location is never sold or shared.
               </p>
 
-              {/* DEV ONLY */}
               <button
                 className="reset-btn"
                 onClick={() => {

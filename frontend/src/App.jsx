@@ -5,6 +5,7 @@ import AnonymousLogin from "./pages/Login";
 import SafeRoutePlanner from "./pages/RoutePlanner";
 import RateRoute from "./pages/Ratings";
 import MapPage from "./pages/MapPage";
+import HowItWorks from "./pages/HowItWorks"; // ✅ NEW IMPORT
 
 function App() {
   const [user, setUser] = useState(() => {
@@ -17,13 +18,20 @@ function App() {
       {/* Public Home Page */}
       <Route path="/" element={<HeroSection />} />
 
-      {/* Route Rating Page */}
+      {/* How It Works Page */}
+      <Route path="/how-it-works" element={<HowItWorks />} />
+
+      {/* Route Rating Page (PROTECTED) */}
       <Route
         path="/ratings"
         element={
-          <div className="full-width-page">
-            <RateRoute />
-          </div>
+          user ? (
+            <div className="full-width-page">
+              <RateRoute />
+            </div>
+          ) : (
+            <Navigate to="/signup" />
+          )
         }
       />
 

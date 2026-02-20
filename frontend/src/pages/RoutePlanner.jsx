@@ -10,7 +10,7 @@ import {
   Bike,
   Car,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchOSRMRoutes } from "../utils/osrm";
 
@@ -21,7 +21,6 @@ export default function SafeRoutePlanner() {
   const [vehicleMode, setVehicleMode] = useState("car");
   const [timeMode, setTimeMode] = useState("now");
   const [scheduleDateTime, setScheduleDateTime] = useState("");
-
   const [routes, setRoutes] = useState([]);
   const [loadingRoutes, setLoadingRoutes] = useState(false);
 
@@ -33,25 +32,49 @@ export default function SafeRoutePlanner() {
   const [destination, setDestination] = useState(null);
   const [toSuggestions, setToSuggestions] = useState([]);
 
-  /* ---------- AUTOCOMPLETE --*/
-  const fetchSuggestions = async (query, setList) => {
+  /* -------- NEW: Debounce + Abort -------- */
+  const debounceRef = useRef(null);
+  const abortRef = useRef(null);
+
+  /* ---------- AUTOCOMPLETE (Optimized) ---------- */
+  const fetchSuggestions = (query, setList) => {
     if (!query || query.length < 3) {
       setList([]);
       return;
     }
 
-    const res = await fetch(
-      `https://nominatim.openstreetmap.org/search?format=json&q=${query}&limit=5`
-    );
-    const data = await res.json();
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
 
-    setList(
-      data.map((item) => ({
-        address: item.display_name,
-        lat: parseFloat(item.lat),
-        lng: parseFloat(item.lon),
-      }))
-    );
+    debounceRef.current = setTimeout(async () => {
+      try {
+        if (abortRef.current) {
+          abortRef.current.abort();
+        }
+
+        abortRef.current = new AbortController();
+
+        const res = await fetch(
+          `https://nominatim.openstreetmap.org/search?format=json&q=${query}&limit=5`,
+          { signal: abortRef.current.signal }
+        );
+
+        const data = await res.json();
+
+        setList(
+          data.map((item) => ({
+            address: item.display_name,
+            lat: parseFloat(item.lat),
+            lng: parseFloat(item.lon),
+          }))
+        );
+      } catch (err) {
+        if (err.name !== "AbortError") {
+          console.error(err);
+        }
+      }
+    }, 500); // 500ms debounce
   };
 
   /* ---------- FIND ROUTES ---------- */
@@ -80,11 +103,9 @@ export default function SafeRoutePlanner() {
         return;
       }
 
-      // Sort routes
       const sortedByDuration = [...osrmRoutes].sort(
         (a, b) => a.duration - b.duration
       );
-
       const sortedByDistance = [...osrmRoutes].sort(
         (a, b) => a.distance - b.distance
       );
@@ -133,13 +154,19 @@ export default function SafeRoutePlanner() {
 
   /* ---------- GPS ---------- */
   const detectCurrentLocation = () => {
-    navigator.geolocation.getCurrentPosition((pos) => {
-      const lat = pos.coords.latitude;
-      const lng = pos.coords.longitude;
-
-      setCurrentLocation({ lat, lng });
-      setFromText("Current Location");
-    });
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
+        setCurrentLocation({ lat, lng });
+        setFromText("Current Location");
+        navigate("/planner");
+      },
+      (error) => {
+        alert("Location permission denied");
+        console.error(error);
+      }
+    );
   };
 
   return (
@@ -291,7 +318,7 @@ export default function SafeRoutePlanner() {
                 <div className="route-metrics">
                   <p>⏱ Time: {(route.duration / 60).toFixed(0)} mins</p>
                   <p>📏 Distance: {(route.distance / 1000).toFixed(2)} km</p>
-                  <p> Mode: {vehicleMode.toUpperCase()}</p>
+                  <p>Mode: {vehicleMode.toUpperCase()}</p>
                   <p>🕒 {timeMode === "now" ? "Leave Now" : "Scheduled"}</p>
                 </div>
 
@@ -320,6 +347,7 @@ export default function SafeRoutePlanner() {
     </>
   );
 }
+
 
 
 

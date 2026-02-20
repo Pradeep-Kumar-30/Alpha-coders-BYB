@@ -26,11 +26,13 @@ export default function HeroSection() {
 
         <div className="hero-buttons">
           <Link to="/signup" className="primary">
-          GET STARTED →
-        </Link>
-          <button className="secondary">
+            GET STARTED →
+          </Link>
+
+          {/* ✅ FIXED BUTTON */}
+          <Link to="/how-it-works" className="secondary">
             HOW IT WORKS →
-          </button>
+          </Link>
         </div>
 
         <div className="hero-stats">

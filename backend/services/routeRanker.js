@@ -1,31 +1,42 @@
-function shuffle(array) {
-  return array.sort(() => Math.random() - 0.5);
-}
-
-function groupBySimilarScore(routes) {
-  const groups = {};
-
-  routes.forEach(route => {
-    const bucket = Math.floor(route.risk / 2);
-    if (!groups[bucket]) groups[bucket] = [];
-    groups[bucket].push(route);
-  });
-
-  return Object.values(groups);
-}
-
-function pickSlightlyLongerSafeRoute(routes) {
-  return routes.find(r => r.risk <= 3) || routes[0];
+function normalize(value, min, max) {
+  if (max === min) return 0;
+  return (value - min) / (max - min);
 }
 
 export function rankRoutesWithRotation(routes) {
-  routes.sort((a, b) => a.risk - b.risk);
+  if (!routes || routes.length === 0) return [];
 
-  const grouped = groupBySimilarScore(routes);
-  grouped.forEach(group => shuffle(group));
+  // Extract risk & duration ranges
+  const risks = routes.map(r => r.risk || 0);
+  const durations = routes.map(r => r.duration || 0);
 
-  const decoy = pickSlightlyLongerSafeRoute(routes);
-  routes.push(decoy);
+  const minRisk = Math.min(...risks);
+  const maxRisk = Math.max(...risks);
 
-  return shuffle(routes).slice(0, 3);
+  const minDuration = Math.min(...durations);
+  const maxDuration = Math.max(...durations);
+
+  // Normalize and compute balanced score
+  routes.forEach(route => {
+    const normRisk = normalize(route.risk, minRisk, maxRisk);
+    const normDuration = normalize(route.duration, minDuration, maxDuration);
+
+    // 60% safety, 40% time weight
+    route.balancedScore = (normRisk * 0.6) + (normDuration * 0.4);
+  });
+
+  // SAFEST = lowest risk
+  const safest = [...routes].sort((a, b) => a.risk - b.risk)[0];
+
+  // FASTEST = lowest duration
+  const fastest = [...routes].sort((a, b) => a.duration - b.duration)[0];
+
+  // BALANCED = lowest combined score
+  const balanced = [...routes].sort((a, b) => a.balancedScore - b.balancedScore)[0];
+
+  return [
+    { ...safest, label: "Safest Route" },
+    { ...balanced, label: "Balanced Route" },
+    { ...fastest, label: "Fastest Route" }
+  ];
 }
